@@ -46,6 +46,8 @@
   - Evidence: visual confirmation - gray moon orbits Earth at 18px radius, 13x Earth's orbital speed
 - [x] **2.1** add a gently warbling overtone to the sound
   - Evidence: audible confirmation - 330Hz sine overtone with slow pitch warble (0.15Hz) and amplitude modulation (0.08Hz)
+- [ ] **2.1** add jupiter's moons
+  - Evidence: visual confirmation
 - [ ] **2.99** Wait 30 minutes for guest requests
   - Check current time, wait until 30 min elapsed
   - If new tasks added above this one, mark this done and exit
