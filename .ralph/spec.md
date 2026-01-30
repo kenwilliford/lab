@@ -48,6 +48,8 @@
   - Evidence: audible confirmation - 330Hz sine overtone with slow pitch warble (0.15Hz) and amplitude modulation (0.08Hz)
 - [x] **2.4** add jupiter's moons
   - Evidence: visual confirmation - four Galilean moons (Io, Europa, Ganymede, Callisto) orbit Jupiter with distinct colors and speeds
+- [ ] **2.5** zoom in on Earth
+  - Evidence: visual confirmation
 - [ ] **2.99** Wait 30 minutes for guest requests
   - Check current time, wait until 30 min elapsed
   - If new tasks added above this one, mark this done and exit
