@@ -1,6 +1,8 @@
 #!/bin/bash
 # Party feature request script - adds wishes to the ralph-loop spec
 
+cd "$(dirname "$0")"
+
 if [ -z "$1" ]; then
     echo "What do you wish for?"
     read -r request
@@ -13,9 +15,9 @@ if [ -z "$request" ]; then
     exit 1
 fi
 
-# Find next task number
-last=$(grep -oP '\*\*2\.\d+\*\*' .ralph/spec.md | grep -oP '\d+$' | sort -n | tail -1)
-if [ -z "$last" ] || [ "$last" = "99" ]; then
+# Find next task number (exclude 2.99)
+last=$(grep -o '\*\*2\.[0-9]*\*\*' .ralph/spec.md | grep -v '2\.99' | sed 's/[^0-9.]//g' | cut -d. -f2 | sort -n | tail -1)
+if [ -z "$last" ]; then
     next=1
 else
     next=$((last + 1))
