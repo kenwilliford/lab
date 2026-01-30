@@ -27,10 +27,9 @@
             transition: opacity 2s ease-out;
             pointer-events: none;
         }
-        #sound-toggle {
+        .control-btn {
             position: fixed;
             top: 20px;
-            right: 20px;
             width: 48px;
             height: 48px;
             background: rgba(255,255,255,0.1);
@@ -40,28 +39,44 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: background 0.2s;
+            transition: background 0.2s, opacity 0.3s;
             z-index: 100;
         }
-        #sound-toggle:hover {
+        .control-btn:hover {
             background: rgba(255,255,255,0.2);
         }
-        #sound-toggle svg {
+        .control-btn svg {
             width: 24px;
             height: 24px;
             fill: rgba(255,255,255,0.7);
         }
+        #sound-toggle { right: 20px; }
+        #fullscreen-toggle { right: 80px; }
         .muted #speaker-on { display: none; }
         .muted #speaker-off { display: block; }
         #speaker-off { display: none; }
+        #expand-icon { display: block; }
+        #collapse-icon { display: none; }
+        .is-fullscreen #expand-icon { display: none; }
+        .is-fullscreen #collapse-icon { display: block; }
+        .controls-hidden { opacity: 0 !important; pointer-events: none; }
     </style>
 </head>
 <body>
     <canvas id="canvas"></canvas>
 
-    <div id="fullscreen-hint">Press F11 for fullscreen</div>
+    <div id="fullscreen-hint">Click the expand button for fullscreen</div>
 
-    <button id="sound-toggle" class="muted" title="Toggle sound">
+    <button id="fullscreen-toggle" class="control-btn" title="Toggle fullscreen">
+        <svg id="expand-icon" viewBox="0 0 24 24">
+            <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/>
+        </svg>
+        <svg id="collapse-icon" viewBox="0 0 24 24">
+            <path d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z"/>
+        </svg>
+    </button>
+
+    <button id="sound-toggle" class="control-btn muted" title="Toggle sound">
         <svg id="speaker-on" viewBox="0 0 24 24">
             <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
         </svg>
@@ -265,6 +280,46 @@
         }
 
         document.getElementById('sound-toggle').addEventListener('click', toggleSound);
+
+        // Fullscreen toggle
+        const fsBtn = document.getElementById('fullscreen-toggle');
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().then(() => {
+                    fsBtn.classList.add('is-fullscreen');
+                });
+            } else {
+                document.exitFullscreen().then(() => {
+                    fsBtn.classList.remove('is-fullscreen');
+                });
+            }
+        }
+
+        fsBtn.addEventListener('click', toggleFullscreen);
+
+        // Update button state if user exits fullscreen via Escape
+        document.addEventListener('fullscreenchange', () => {
+            if (document.fullscreenElement) {
+                fsBtn.classList.add('is-fullscreen');
+            } else {
+                fsBtn.classList.remove('is-fullscreen');
+            }
+        });
+
+        // Hide controls after inactivity in fullscreen
+        let hideTimeout;
+        function showControls() {
+            document.querySelectorAll('.control-btn').forEach(btn => btn.classList.remove('controls-hidden'));
+            clearTimeout(hideTimeout);
+            if (document.fullscreenElement) {
+                hideTimeout = setTimeout(() => {
+                    document.querySelectorAll('.control-btn').forEach(btn => btn.classList.add('controls-hidden'));
+                }, 3000);
+            }
+        }
+        document.addEventListener('mousemove', showControls);
+        document.addEventListener('click', showControls);
     </script>
 </body>
 </html>
