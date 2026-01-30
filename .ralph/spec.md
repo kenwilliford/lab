@@ -42,8 +42,8 @@
 
 - [x] **2.1** make the stars twinkle in the background
   - Evidence: visual confirmation - 200 stars with sinusoidal brightness variation
-- [ ] **2.1** add Earth's moon
-  - Evidence: visual confirmation
+- [x] **2.1** add Earth's moon
+  - Evidence: visual confirmation - gray moon orbits Earth at 18px radius, 13x Earth's orbital speed
 - [ ] **2.99** Wait 30 minutes for guest requests
   - Check current time, wait until 30 min elapsed
   - If new tasks added above this one, mark this done and exit
@@ -59,6 +59,7 @@
 |---------|------|--------|
 | setup | 1.1-1.R | MVP complete: solar/index.html with planets, sound, link added |
 | ralph | 2.1 | Added 200 twinkling stars with sinusoidal brightness variation |
+| ralph | 2.1 | Added Earth's moon - gray satellite orbiting Earth |
 
 ## Done When
 
