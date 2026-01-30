@@ -1,0 +1,32 @@
+#!/bin/bash
+# Party feature request script - adds wishes to the ralph-loop spec
+
+if [ -z "$1" ]; then
+    echo "What do you wish for?"
+    read -r request
+else
+    request="$*"
+fi
+
+if [ -z "$request" ]; then
+    echo "No wish provided"
+    exit 1
+fi
+
+# Find next task number
+last=$(grep -oP '\*\*2\.\d+\*\*' .ralph/spec.md | grep -oP '\d+$' | sort -n | tail -1)
+if [ -z "$last" ] || [ "$last" = "99" ]; then
+    next=1
+else
+    next=$((last + 1))
+fi
+
+# Insert before the 2.99 wait task
+sed -i "/\*\*2\.99\*\*/i - [ ] **2.${next}** ${request}\n  - Evidence: visual confirmation" .ralph/spec.md
+
+# Commit and push
+git add .ralph/spec.md
+git commit -m "2.${next}: ${request}"
+git push
+
+echo "Wish granted! Task 2.${next} added. The loop will implement it shortly."
