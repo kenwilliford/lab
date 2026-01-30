@@ -28,7 +28,25 @@ sed -i "/\*\*2\.99\*\*/i - [ ] **2.${next}** ${request}\n  - Evidence: visual co
 
 # Commit and push
 git add .ralph/spec.md
-git commit -m "2.${next}: ${request}"
-git push
+git commit -m "2.${next}: ${request}" --quiet
+git push --quiet
 
-echo "Wish granted! Task 2.${next} added. The loop will implement it shortly."
+echo ""
+echo "Wish granted! ✨"
+echo ""
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "QUEUE"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+grep -E '^\- \[.\] \*\*2\.[0-9]+\*\*' .ralph/spec.md | grep -v '2\.99' | while read line; do
+    if echo "$line" | grep -q '\[x\]'; then
+        # Done
+        task=$(echo "$line" | sed 's/.*\*\*2\.\([0-9]*\)\*\* /2.\1 /')
+        echo "  ✓ $task"
+    else
+        # Pending
+        task=$(echo "$line" | sed 's/.*\*\*2\.\([0-9]*\)\*\* /2.\1 /')
+        echo "  ○ $task"
+    fi
+done
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo ""

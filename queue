@@ -1,0 +1,37 @@
+#!/bin/bash
+# Live updating task queue display
+
+cd "$(dirname "$0")"
+
+show_queue() {
+    clear
+    echo ""
+    echo "  ╔═══════════════════════════════════════╗"
+    echo "  ║         SOLAR SYSTEM WISHES           ║"
+    echo "  ╚═══════════════════════════════════════╝"
+    echo ""
+
+    grep -E '^\- \[.\] \*\*2\.[0-9]+\*\*' .ralph/spec.md | grep -v '2\.99' | while read line; do
+        if echo "$line" | grep -q '\[x\]'; then
+            # Done
+            task=$(echo "$line" | sed 's/.*\*\*2\.\([0-9]*\)\*\* /2.\1  /' | cut -c1-50)
+            echo "    ✓ $task"
+        else
+            # Pending - highlight
+            task=$(echo "$line" | sed 's/.*\*\*2\.\([0-9]*\)\*\* /2.\1  /' | cut -c1-50)
+            echo "    ○ $task  ← up next"
+        fi
+    done
+
+    echo ""
+    echo "  ─────────────────────────────────────────"
+    echo "  Refreshing every 5s • Ctrl+C to exit"
+    echo ""
+}
+
+# Pull latest and show
+while true; do
+    git pull --quiet 2>/dev/null
+    show_queue
+    sleep 5
+done
