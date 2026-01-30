@@ -40,6 +40,8 @@
 <!-- Guests add feature requests below this line -->
 <!-- Format: - [ ] **2.X** Description -->
 
+- [ ] **2.1** make the stars twinkle in the background
+  - Evidence: visual confirmation
 - [ ] **2.99** Wait 30 minutes for guest requests
   - Check current time, wait until 30 min elapsed
   - If new tasks added above this one, mark this done and exit
