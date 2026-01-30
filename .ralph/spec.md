@@ -44,6 +44,8 @@
   - Evidence: visual confirmation - 200 stars with sinusoidal brightness variation
 - [x] **2.1** add Earth's moon
   - Evidence: visual confirmation - gray moon orbits Earth at 18px radius, 13x Earth's orbital speed
+- [ ] **2.1** add a gently warbling overtone to the sound
+  - Evidence: visual confirmation
 - [ ] **2.99** Wait 30 minutes for guest requests
   - Check current time, wait until 30 min elapsed
   - If new tasks added above this one, mark this done and exit
