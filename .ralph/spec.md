@@ -40,7 +40,9 @@
 <!-- Guests add feature requests below this line -->
 <!-- Format: - [ ] **2.X** Description -->
 
-- [ ] **2.1** make the stars twinkle in the background
+- [x] **2.1** make the stars twinkle in the background
+  - Evidence: visual confirmation - 200 stars with sinusoidal brightness variation
+- [ ] **2.1** add Earth's moon
   - Evidence: visual confirmation
 - [ ] **2.99** Wait 30 minutes for guest requests
   - Check current time, wait until 30 min elapsed
@@ -56,6 +58,7 @@
 | Session | Step | Result |
 |---------|------|--------|
 | setup | 1.1-1.R | MVP complete: solar/index.html with planets, sound, link added |
+| ralph | 2.1 | Added 200 twinkling stars with sinusoidal brightness variation |
 
 ## Done When
 
