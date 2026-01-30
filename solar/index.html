@@ -320,6 +320,35 @@
         }
         document.addEventListener('mousemove', showControls);
         document.addEventListener('click', showControls);
+
+        // Auto-reload when page updates (polls every 15 seconds)
+        let lastHash = null;
+        async function checkForUpdates() {
+            try {
+                const res = await fetch(location.href, { cache: 'no-store' });
+                const text = await res.text();
+                const hash = text.length + '-' + text.slice(0, 500).length; // simple hash
+                if (lastHash && hash !== lastHash) {
+                    // Save sound state before reload
+                    sessionStorage.setItem('soundWasPlaying', isPlaying ? '1' : '0');
+                    sessionStorage.setItem('wasFullscreen', document.fullscreenElement ? '1' : '0');
+                    location.reload();
+                }
+                lastHash = hash;
+            } catch (e) {}
+        }
+        setInterval(checkForUpdates, 15000);
+        checkForUpdates();
+
+        // Restore state after reload
+        if (sessionStorage.getItem('soundWasPlaying') === '1') {
+            setTimeout(toggleSound, 500);
+            sessionStorage.removeItem('soundWasPlaying');
+        }
+        if (sessionStorage.getItem('wasFullscreen') === '1') {
+            setTimeout(toggleFullscreen, 100);
+            sessionStorage.removeItem('wasFullscreen');
+        }
     </script>
 </body>
 </html>
