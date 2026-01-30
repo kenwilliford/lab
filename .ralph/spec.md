@@ -46,8 +46,8 @@
   - Evidence: visual confirmation - gray moon orbits Earth at 18px radius, 13x Earth's orbital speed
 - [x] **2.1** add a gently warbling overtone to the sound
   - Evidence: audible confirmation - 330Hz sine overtone with slow pitch warble (0.15Hz) and amplitude modulation (0.08Hz)
-- [ ] **2.1** add jupiter's moons
-  - Evidence: visual confirmation
+- [x] **2.1** add jupiter's moons
+  - Evidence: visual confirmation - four Galilean moons (Io, Europa, Ganymede, Callisto) orbit Jupiter with distinct colors and speeds
 - [ ] **2.99** Wait 30 minutes for guest requests
   - Check current time, wait until 30 min elapsed
   - If new tasks added above this one, mark this done and exit
@@ -65,6 +65,7 @@
 | ralph | 2.1 | Added 200 twinkling stars with sinusoidal brightness variation |
 | ralph | 2.1 | Added Earth's moon - gray satellite orbiting Earth |
 | ralph | 2.1 | Added gently warbling overtone - 330Hz sine with pitch/amplitude modulation |
+| ralph | 2.1 | Added Jupiter's four Galilean moons - Io, Europa, Ganymede, Callisto orbiting Jupiter |
 
 ## Done When
 

@@ -126,6 +126,14 @@
             angle: Math.random() * Math.PI * 2
         };
 
+        // Jupiter's Galilean moons
+        const jupiterMoons = [
+            { name: 'Io', color: '#f0e68c', orbitRadius: 22, size: 1.8, speed: 24, angle: Math.random() * Math.PI * 2 },
+            { name: 'Europa', color: '#e8e8e0', orbitRadius: 28, size: 1.5, speed: 14, angle: Math.random() * Math.PI * 2 },
+            { name: 'Ganymede', color: '#c8c8b8', orbitRadius: 36, size: 2.2, speed: 7, angle: Math.random() * Math.PI * 2 },
+            { name: 'Callisto', color: '#a8a898', orbitRadius: 46, size: 2, speed: 3, angle: Math.random() * Math.PI * 2 }
+        ];
+
         // Stars for twinkling background
         const stars = [];
         for (let i = 0; i < 200; i++) {
@@ -188,7 +196,7 @@
             ctx.fill();
 
             // Update and draw planets
-            let earthX, earthY;
+            let earthX, earthY, jupiterX, jupiterY;
             planets.forEach((p, i) => {
                 p.angle += p.speed * dt * 0.3;
                 const x = cx + Math.cos(p.angle) * p.orbit * scale;
@@ -198,6 +206,11 @@
                 if (p.name === 'Earth') {
                     earthX = x;
                     earthY = y;
+                }
+                // Store Jupiter's position for its moons
+                if (p.name === 'Jupiter') {
+                    jupiterX = x;
+                    jupiterY = y;
                 }
 
                 // Saturn rings
@@ -227,6 +240,17 @@
             ctx.beginPath();
             ctx.arc(moonX, moonY, moon.size, 0, Math.PI * 2);
             ctx.fill();
+
+            // Draw Jupiter's moons
+            jupiterMoons.forEach(jm => {
+                jm.angle += jm.speed * dt * 0.3;
+                const jmX = jupiterX + Math.cos(jm.angle) * jm.orbitRadius;
+                const jmY = jupiterY + Math.sin(jm.angle) * jm.orbitRadius;
+                ctx.fillStyle = jm.color;
+                ctx.beginPath();
+                ctx.arc(jmX, jmY, jm.size, 0, Math.PI * 2);
+                ctx.fill();
+            });
 
             requestAnimationFrame(animate);
         }
