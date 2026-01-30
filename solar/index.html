@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solar System</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #0a0a0f;
+            overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+        canvas {
+            display: block;
+            position: fixed;
+            top: 0;
+            left: 0;
+        }
+        #fullscreen-hint {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: rgba(255,255,255,0.4);
+            font-size: 14px;
+            transition: opacity 2s ease-out;
+            pointer-events: none;
+        }
+        #sound-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 48px;
+            height: 48px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+            z-index: 100;
+        }
+        #sound-toggle:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        #sound-toggle svg {
+            width: 24px;
+            height: 24px;
+            fill: rgba(255,255,255,0.7);
+        }
+        .muted #speaker-on { display: none; }
+        .muted #speaker-off { display: block; }
+        #speaker-off { display: none; }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+
+    <div id="fullscreen-hint">Press F11 for fullscreen</div>
+
+    <button id="sound-toggle" class="muted" title="Toggle sound">
+        <svg id="speaker-on" viewBox="0 0 24 24">
+            <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+        </svg>
+        <svg id="speaker-off" viewBox="0 0 24 24">
+            <path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>
+        </svg>
+    </button>
+
+    <script>
+        // Canvas setup
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resize();
+        window.addEventListener('resize', resize);
+
+        // Fade fullscreen hint
+        setTimeout(() => {
+            document.getElementById('fullscreen-hint').style.opacity = '0';
+        }, 5000);
+
+        // Planet data: name, color, orbitRadius (relative), size, speed
+        const planets = [
+            { name: 'Mercury', color: '#b5b5b5', orbit: 0.08, size: 4, speed: 4.15 },
+            { name: 'Venus', color: '#e6c87a', orbit: 0.12, size: 6, speed: 1.62 },
+            { name: 'Earth', color: '#6b93d6', orbit: 0.16, size: 6.5, speed: 1 },
+            { name: 'Mars', color: '#c1440e', orbit: 0.21, size: 5, speed: 0.53 },
+            { name: 'Jupiter', color: '#d8ca9d', orbit: 0.35, size: 16, speed: 0.084 },
+            { name: 'Saturn', color: '#f4d59e', orbit: 0.45, size: 14, speed: 0.034, rings: true },
+            { name: 'Uranus', color: '#d1e7e7', orbit: 0.55, size: 10, speed: 0.012 },
+            { name: 'Neptune', color: '#5b5ddf', orbit: 0.65, size: 9.5, speed: 0.006 }
+        ];
+
+        // Initialize angles
+        planets.forEach(p => p.angle = Math.random() * Math.PI * 2);
+
+        // Animation
+        let lastTime = 0;
+        function animate(time) {
+            const dt = (time - lastTime) / 1000;
+            lastTime = time;
+
+            const cx = canvas.width / 2;
+            const cy = canvas.height / 2;
+            const scale = Math.min(canvas.width, canvas.height) * 0.7;
+
+            // Clear with subtle fade for trails
+            ctx.fillStyle = 'rgba(10, 10, 15, 0.3)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw orbits
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+            ctx.lineWidth = 1;
+            planets.forEach(p => {
+                ctx.beginPath();
+                ctx.arc(cx, cy, p.orbit * scale, 0, Math.PI * 2);
+                ctx.stroke();
+            });
+
+            // Draw sun with glow
+            const sunGradient = ctx.createRadialGradient(cx, cy, 0, cx, cy, 35);
+            sunGradient.addColorStop(0, '#fff7e0');
+            sunGradient.addColorStop(0.3, '#ffcc00');
+            sunGradient.addColorStop(0.7, '#ff8c00');
+            sunGradient.addColorStop(1, 'rgba(255, 100, 0, 0)');
+            ctx.fillStyle = sunGradient;
+            ctx.beginPath();
+            ctx.arc(cx, cy, 35, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Sun core
+            ctx.fillStyle = '#fffbe6';
+            ctx.beginPath();
+            ctx.arc(cx, cy, 18, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Update and draw planets
+            planets.forEach(p => {
+                p.angle += p.speed * dt * 0.3;
+                const x = cx + Math.cos(p.angle) * p.orbit * scale;
+                const y = cy + Math.sin(p.angle) * p.orbit * scale;
+
+                // Saturn rings
+                if (p.rings) {
+                    ctx.strokeStyle = 'rgba(210, 180, 140, 0.5)';
+                    ctx.lineWidth = 3;
+                    ctx.beginPath();
+                    ctx.ellipse(x, y, p.size * 2.2, p.size * 0.6, p.angle * 0.1, 0, Math.PI * 2);
+                    ctx.stroke();
+                }
+
+                // Planet
+                const gradient = ctx.createRadialGradient(x - p.size/3, y - p.size/3, 0, x, y, p.size);
+                gradient.addColorStop(0, lighten(p.color, 30));
+                gradient.addColorStop(1, p.color);
+                ctx.fillStyle = gradient;
+                ctx.beginPath();
+                ctx.arc(x, y, p.size, 0, Math.PI * 2);
+                ctx.fill();
+            });
+
+            requestAnimationFrame(animate);
+        }
+
+        function lighten(color, percent) {
+            const num = parseInt(color.slice(1), 16);
+            const amt = Math.round(2.55 * percent);
+            const R = Math.min(255, (num >> 16) + amt);
+            const G = Math.min(255, ((num >> 8) & 0x00FF) + amt);
+            const B = Math.min(255, (num & 0x0000FF) + amt);
+            return `rgb(${R},${G},${B})`;
+        }
+
+        requestAnimationFrame(animate);
+
+        // Audio setup
+        let audioCtx = null;
+        let isPlaying = false;
+        let masterGain = null;
+        let oscillators = [];
+
+        function createAmbientSound() {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            masterGain = audioCtx.createGain();
+            masterGain.gain.value = 0;
+            masterGain.connect(audioCtx.destination);
+
+            // Deep drone layers
+            const frequencies = [55, 82.5, 110, 165, 220];
+            const gains = [0.15, 0.12, 0.08, 0.05, 0.03];
+
+            frequencies.forEach((freq, i) => {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+
+                osc.type = 'sine';
+                osc.frequency.value = freq;
+                gain.gain.value = gains[i];
+
+                // Subtle LFO for movement
+                const lfo = audioCtx.createOscillator();
+                const lfoGain = audioCtx.createGain();
+                lfo.frequency.value = 0.05 + i * 0.02;
+                lfoGain.gain.value = freq * 0.01;
+                lfo.connect(lfoGain);
+                lfoGain.connect(osc.frequency);
+                lfo.start();
+
+                osc.connect(gain);
+                gain.connect(masterGain);
+                osc.start();
+
+                oscillators.push({ osc, lfo, gain });
+            });
+
+            // Filtered noise for texture
+            const noise = audioCtx.createBufferSource();
+            const noiseBuffer = audioCtx.createBuffer(1, audioCtx.sampleRate * 2, audioCtx.sampleRate);
+            const noiseData = noiseBuffer.getChannelData(0);
+            for (let i = 0; i < noiseData.length; i++) {
+                noiseData[i] = Math.random() * 2 - 1;
+            }
+            noise.buffer = noiseBuffer;
+            noise.loop = true;
+
+            const noiseFilter = audioCtx.createBiquadFilter();
+            noiseFilter.type = 'lowpass';
+            noiseFilter.frequency.value = 200;
+
+            const noiseGain = audioCtx.createGain();
+            noiseGain.gain.value = 0.02;
+
+            noise.connect(noiseFilter);
+            noiseFilter.connect(noiseGain);
+            noiseGain.connect(masterGain);
+            noise.start();
+        }
+
+        function toggleSound() {
+            const btn = document.getElementById('sound-toggle');
+
+            if (!audioCtx) {
+                createAmbientSound();
+            }
+
+            if (isPlaying) {
+                masterGain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 1);
+                btn.classList.add('muted');
+            } else {
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+                masterGain.gain.linearRampToValueAtTime(0.5, audioCtx.currentTime + 1);
+                btn.classList.remove('muted');
+            }
+            isPlaying = !isPlaying;
+        }
+
+        document.getElementById('sound-toggle').addEventListener('click', toggleSound);
+    </script>
+</body>
+</html>
