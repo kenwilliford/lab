@@ -282,6 +282,37 @@
                 oscillators.push({ osc, lfo, gain });
             });
 
+            // Gently warbling overtone - ethereal high harmonic
+            const overtone = audioCtx.createOscillator();
+            const overtoneGain = audioCtx.createGain();
+            overtone.type = 'sine';
+            overtone.frequency.value = 330; // 6th harmonic of 55Hz
+            overtoneGain.gain.value = 0.025; // gentle volume
+
+            // Warble LFO - slow, dreamy modulation
+            const warbleLfo = audioCtx.createOscillator();
+            const warbleLfoGain = audioCtx.createGain();
+            warbleLfo.frequency.value = 0.15; // slow warble rate
+            warbleLfoGain.gain.value = 8; // depth of pitch warble in Hz
+            warbleLfo.connect(warbleLfoGain);
+            warbleLfoGain.connect(overtone.frequency);
+            warbleLfo.start();
+
+            // Amplitude modulation for gentle pulsing
+            const ampLfo = audioCtx.createOscillator();
+            const ampLfoGain = audioCtx.createGain();
+            ampLfo.frequency.value = 0.08; // very slow amplitude pulse
+            ampLfoGain.gain.value = 0.012;
+            ampLfo.connect(ampLfoGain);
+            ampLfoGain.connect(overtoneGain.gain);
+            ampLfo.start();
+
+            overtone.connect(overtoneGain);
+            overtoneGain.connect(masterGain);
+            overtone.start();
+
+            oscillators.push({ osc: overtone, lfo: warbleLfo, gain: overtoneGain });
+
             // Filtered noise for texture
             const noise = audioCtx.createBufferSource();
             const noiseBuffer = audioCtx.createBuffer(1, audioCtx.sampleRate * 2, audioCtx.sampleRate);
