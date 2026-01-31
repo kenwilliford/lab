@@ -62,12 +62,14 @@
   - Evidence: visual confirmation - Earth now stays centered when zoomed in (stable frame of reference); Moon orbits centered Earth; other planets/sun hidden (too far away); subtle sun glow shows direction of sunlight
 - [x] **2.11** There should be a subtle interface element when hovering over Earth -- like a glow -- indicating that it will respond to click. Maybe a subtle and beautiful zoom message as well.
   - Evidence: visual confirmation - ethereal blue glow with pulsing ring on Earth hover, "click to explore" message, cursor changes to pointer
-- [ ] **2.99** Wait 30 minutes for guest requests
+- [ ] **2.12** In Earth zoom mode, draw the Earth to look more accurately look like Earth from space, with the atmosphere, and have the Earth rotating  with accurate tilt and rotation direction, but a speed that is recongnizably moving.
+  - Evidence: visual confirmation
+- [x] **2.99** Wait 30 minutes for guest requests
   - Check current time, wait until 30 min elapsed
   - If new tasks added above this one, mark this done and exit
   - Otherwise, sleep and check again
   - This keeps the loop alive for the party
-  - Evidence: 30 minutes passed OR new tasks exist
+  - Evidence: 30 minutes passed - started 15:40:42, completed 16:25:02 (~44 min elapsed)
 
 ---
 
@@ -86,6 +88,7 @@
 | ralph | 2.9 | Added zoom-out button - magnifier icon appears when zoomed in, click to return to full solar system |
 | ralph | 2.10 | Fixed Earth-Moon orbital geometry - stable centered view, hides solar system, subtle sun direction glow |
 | ralph | 2.11 | Added hover effect on Earth - ethereal blue glow, pulsing ring, "click to explore" message, pointer cursor |
+| ralph | 2.99 | Wait period complete - 44 min elapsed (started 15:40, completed 16:25) |
 
 ## Done When
 
