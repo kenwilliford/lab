@@ -56,8 +56,8 @@
   - Evidence: audible confirmation - 180Hz sine mid-tone with slow pulsing LFO (0.12Hz) for breathing rhythm
 - [x] **2.8** add a capability to zoom in to earth-moon system when clicked, and make earth and moon more detailed in zoomed in mode.
   - Evidence: visual confirmation - click on Earth to zoom in 6x; detailed Earth with continents/atmosphere, detailed Moon with craters, moon orbit visible
-- [ ] **2.9** add a button to zoom back out to full solar system view
-  - Evidence: visual confirmation
+- [x] **2.9** add a button to zoom back out to full solar system view
+  - Evidence: visual confirmation - zoom-out magnifier button appears when in zoomed Earth-moon view, clicking returns to full solar system
 - [ ] **2.99** Wait 30 minutes for guest requests
   - Check current time, wait until 30 min elapsed
   - If new tasks added above this one, mark this done and exit
@@ -79,6 +79,7 @@
 | ralph | 2.5-2.6 | Added zoom toggle button - smoothly zooms to Earth at 4x and follows it; click again to zoom out |
 | ralph | 2.7 | Added pulsing mid-tone - 180Hz sine with slow breathing pulse (0.12Hz LFO) |
 | ralph | 2.8 | Added click-to-zoom on Earth; detailed Earth (continents, atmosphere), detailed Moon (craters) when zoomed |
+| ralph | 2.9 | Added zoom-out button - magnifier icon appears when zoomed in, click to return to full solar system |
 
 ## Done When
 
