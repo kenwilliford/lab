@@ -179,6 +179,17 @@
         let currentEarthX = 0;
         let currentEarthY = 0;
 
+        // Track mouse position for hover detection
+        let mouseX = 0;
+        let mouseY = 0;
+        let isHoveringEarth = false;
+
+        canvas.addEventListener('mousemove', function(e) {
+            const rect = canvas.getBoundingClientRect();
+            mouseX = e.clientX - rect.left;
+            mouseY = e.clientY - rect.top;
+        });
+
         // Animation
         let lastTime = 0;
         function animate(time) {
@@ -328,6 +339,52 @@
                     ctx.arc(x, y, planetSize, 0, Math.PI * 2);
                     ctx.fill();
                 });
+            }
+
+            // Check if hovering over Earth (only in solar system view)
+            if (!isEarthMoonView) {
+                const dist = Math.sqrt(Math.pow(mouseX - currentEarthX, 2) + Math.pow(mouseY - currentEarthY, 2));
+                const hoverRadius = 50;
+                isHoveringEarth = dist < hoverRadius;
+                canvas.style.cursor = isHoveringEarth ? 'pointer' : 'default';
+
+                // Draw hover glow on Earth
+                if (isHoveringEarth) {
+                    const earth = planets.find(p => p.name === 'Earth');
+                    const drawEarthX = drawCx + Math.cos(earth.angle) * earth.orbit * scale;
+                    const drawEarthY = drawCy + Math.sin(earth.angle) * earth.orbit * scale;
+                    const earthSize = earth.size * zoomState.level;
+
+                    // Outer glow - soft ethereal rings
+                    const glowSize = earthSize * 4;
+                    const hoverGlow = ctx.createRadialGradient(drawEarthX, drawEarthY, earthSize, drawEarthX, drawEarthY, glowSize);
+                    hoverGlow.addColorStop(0, 'rgba(135, 206, 250, 0.4)');
+                    hoverGlow.addColorStop(0.3, 'rgba(100, 180, 255, 0.2)');
+                    hoverGlow.addColorStop(0.6, 'rgba(80, 150, 255, 0.08)');
+                    hoverGlow.addColorStop(1, 'rgba(60, 120, 255, 0)');
+                    ctx.fillStyle = hoverGlow;
+                    ctx.beginPath();
+                    ctx.arc(drawEarthX, drawEarthY, glowSize, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    // Subtle pulsing ring
+                    const pulsePhase = Math.sin(time * 0.003) * 0.5 + 0.5;
+                    const ringRadius = earthSize * (1.5 + pulsePhase * 0.5);
+                    ctx.strokeStyle = `rgba(135, 206, 250, ${0.3 + pulsePhase * 0.2})`;
+                    ctx.lineWidth = 1;
+                    ctx.beginPath();
+                    ctx.arc(drawEarthX, drawEarthY, ringRadius, 0, Math.PI * 2);
+                    ctx.stroke();
+
+                    // Subtle zoom hint text
+                    ctx.font = '12px -apple-system, BlinkMacSystemFont, sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.fillStyle = `rgba(200, 220, 255, ${0.5 + pulsePhase * 0.3})`;
+                    ctx.fillText('click to explore', drawEarthX, drawEarthY + earthSize + 25);
+                }
+            } else {
+                isHoveringEarth = false;
+                canvas.style.cursor = 'default';
             }
 
             // Draw Earth's moon
