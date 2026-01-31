@@ -48,10 +48,10 @@
   - Evidence: audible confirmation - 330Hz sine overtone with slow pitch warble (0.15Hz) and amplitude modulation (0.08Hz)
 - [x] **2.4** add jupiter's moons
   - Evidence: visual confirmation - four Galilean moons (Io, Europa, Ganymede, Callisto) orbit Jupiter with distinct colors and speeds
-- [ ] **2.5** zoom in on Earth
-  - Evidence: visual confirmation
-- [ ] **2.6** Add a button to zoom back out to full solar system view
-  - Evidence: visual confirmation
+- [x] **2.5** zoom in on Earth
+  - Evidence: visual confirmation - zoom button (magnifier icon) smoothly animates view to center on Earth at 4x zoom, follows Earth as it orbits
+- [x] **2.6** Add a button to zoom back out to full solar system view
+  - Evidence: visual confirmation - same zoom button toggles back to full solar system view with smooth animation
 - [ ] **2.99** Wait 30 minutes for guest requests
   - Check current time, wait until 30 min elapsed
   - If new tasks added above this one, mark this done and exit
@@ -70,6 +70,7 @@
 | ralph | 2.2 | Added Earth's moon - gray satellite orbiting Earth |
 | ralph | 2.3 | Added gently warbling overtone - 330Hz sine with pitch/amplitude modulation |
 | ralph | 2.4 | Added Jupiter's four Galilean moons - Io, Europa, Ganymede, Callisto orbiting Jupiter |
+| ralph | 2.5-2.6 | Added zoom toggle button - smoothly zooms to Earth at 4x and follows it; click again to zoom out |
 
 ## Done When
 

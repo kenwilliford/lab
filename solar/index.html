@@ -52,6 +52,8 @@
         }
         #sound-toggle { right: 20px; }
         #fullscreen-toggle { right: 80px; }
+        #zoom-toggle { right: 140px; }
+        #zoom-toggle.zoomed { background: rgba(107, 147, 214, 0.4); }
         .muted #speaker-on { display: none; }
         .muted #speaker-off { display: block; }
         #speaker-off { display: none; }
@@ -66,6 +68,13 @@
     <canvas id="canvas"></canvas>
 
     <div id="fullscreen-hint">Click the expand button for fullscreen</div>
+
+    <button id="zoom-toggle" class="control-btn" title="Zoom to Earth">
+        <svg viewBox="0 0 24 24">
+            <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+            <path d="M12 10h-2v2H8v-2H6V8h2V6h2v2h2v2z"/>
+        </svg>
+    </button>
 
     <button id="fullscreen-toggle" class="control-btn" title="Toggle fullscreen">
         <svg id="expand-icon" viewBox="0 0 24 24">
@@ -146,6 +155,16 @@
             });
         }
 
+        // Zoom state
+        let isZoomedToEarth = false;
+        let currentZoom = 1;
+        let targetZoom = 1;
+        let currentOffsetX = 0;
+        let currentOffsetY = 0;
+        let targetOffsetX = 0;
+        let targetOffsetY = 0;
+        const EARTH_ZOOM_LEVEL = 4;
+
         // Animation
         let lastTime = 0;
         function animate(time) {
@@ -156,11 +175,33 @@
             const cy = canvas.height / 2;
             const scale = Math.min(canvas.width, canvas.height) * 0.7;
 
+            // Calculate Earth's position for zoom target
+            const earth = planets.find(p => p.name === 'Earth');
+            const earthX = cx + Math.cos(earth.angle) * earth.orbit * scale;
+            const earthY = cy + Math.sin(earth.angle) * earth.orbit * scale;
+
+            // Update zoom targets
+            if (isZoomedToEarth) {
+                targetZoom = EARTH_ZOOM_LEVEL;
+                targetOffsetX = cx - earthX * EARTH_ZOOM_LEVEL;
+                targetOffsetY = cy - earthY * EARTH_ZOOM_LEVEL;
+            } else {
+                targetZoom = 1;
+                targetOffsetX = 0;
+                targetOffsetY = 0;
+            }
+
+            // Smooth interpolation (ease towards target)
+            const easing = 0.05;
+            currentZoom += (targetZoom - currentZoom) * easing;
+            currentOffsetX += (targetOffsetX - currentOffsetX) * easing;
+            currentOffsetY += (targetOffsetY - currentOffsetY) * easing;
+
             // Clear with solid background (needed for star twinkling)
             ctx.fillStyle = '#0a0a0f';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // Draw twinkling stars
+            // Draw twinkling stars (before zoom transform so they stay in background)
             stars.forEach(star => {
                 const twinkle = 0.3 + 0.7 * (0.5 + 0.5 * Math.sin(time * 0.001 * star.speed + star.phase));
                 ctx.fillStyle = `rgba(255, 255, 255, ${twinkle})`;
@@ -168,6 +209,11 @@
                 ctx.arc(star.x * canvas.width, star.y * canvas.height, star.size, 0, Math.PI * 2);
                 ctx.fill();
             });
+
+            // Apply zoom transform
+            ctx.save();
+            ctx.translate(currentOffsetX, currentOffsetY);
+            ctx.scale(currentZoom, currentZoom);
 
             // Draw orbits
             ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
@@ -251,6 +297,9 @@
                 ctx.arc(jmX, jmY, jm.size, 0, Math.PI * 2);
                 ctx.fill();
             });
+
+            // Restore context after zoom transform
+            ctx.restore();
 
             requestAnimationFrame(animate);
         }
@@ -381,6 +430,13 @@
         }
 
         document.getElementById('sound-toggle').addEventListener('click', toggleSound);
+
+        // Zoom toggle
+        const zoomBtn = document.getElementById('zoom-toggle');
+        zoomBtn.addEventListener('click', () => {
+            isZoomedToEarth = !isZoomedToEarth;
+            zoomBtn.classList.toggle('zoomed', isZoomedToEarth);
+        });
 
         // Fullscreen toggle
         const fsBtn = document.getElementById('fullscreen-toggle');
