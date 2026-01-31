@@ -29,4 +29,15 @@ for pattern in "requestAnimationFrame" "toggleSound" "planets" "animate"; do
 done
 
 echo "✓ Key code elements present"
-echo "✓ Validation passed"
+
+# Browser test: load page and check for runtime errors
+echo ""
+echo "Running browser test..."
+if node "$(dirname "$0")/browser-test.js" 2>&1; then
+    echo ""
+    echo "✓ All validation passed"
+else
+    echo ""
+    echo "✗ Browser test FAILED - do not commit"
+    exit 1
+fi

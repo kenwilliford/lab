@@ -1,0 +1,11 @@
+{
+  "name": "ralph-test",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "test": "node browser-test.js"
+  },
+  "dependencies": {
+    "playwright": "^1.58.1"
+  }
+}

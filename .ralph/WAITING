@@ -1,0 +1,9 @@
+Waiting for guest requests or 30 minute timeout.
+
+Started: 2026-01-30T15:40:42-08:00
+Target:  2026-01-30T16:10:42-08:00 (30 min from start)
+Status:  ~7 minutes remaining
+
+To add a task: Edit .ralph/spec.md and add a new "- [ ] **2.X** description" line above 2.99
+
+When new tasks appear or 30 min elapsed, remove this file and restart.
