@@ -50,6 +50,8 @@
   - Evidence: visual confirmation - four Galilean moons (Io, Europa, Ganymede, Callisto) orbit Jupiter with distinct colors and speeds
 - [ ] **2.5** zoom in on Earth
   - Evidence: visual confirmation
+- [ ] **2.6** Add a button to zoom back out to full solar system view
+  - Evidence: visual confirmation
 - [ ] **2.99** Wait 30 minutes for guest requests
   - Check current time, wait until 30 min elapsed
   - If new tasks added above this one, mark this done and exit
