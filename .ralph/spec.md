@@ -56,6 +56,8 @@
   - Evidence: audible confirmation - 180Hz sine mid-tone with slow pulsing LFO (0.12Hz) for breathing rhythm
 - [ ] **2.8** add a capability to zoom in to earth-moon system when clicked, and make earth and moon more detailed in zoomed in mode.
   - Evidence: visual confirmation
+- [ ] **2.9** add a button to zoom back out to full solar system view
+  - Evidence: visual confirmation
 - [ ] **2.99** Wait 30 minutes for guest requests
   - Check current time, wait until 30 min elapsed
   - If new tasks added above this one, mark this done and exit
