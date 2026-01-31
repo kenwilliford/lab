@@ -337,6 +337,28 @@
 
             oscillators.push({ osc: overtone, lfo: warbleLfo, gain: overtoneGain });
 
+            // Gently pulsing mid-tone - warm, breathing presence
+            const midtone = audioCtx.createOscillator();
+            const midtoneGain = audioCtx.createGain();
+            midtone.type = 'sine';
+            midtone.frequency.value = 180; // warm mid frequency
+            midtoneGain.gain.value = 0.04; // subtle presence
+
+            // Gentle pulsing - slow breathing rhythm
+            const pulseLfo = audioCtx.createOscillator();
+            const pulseLfoGain = audioCtx.createGain();
+            pulseLfo.frequency.value = 0.12; // slow, meditative pulse
+            pulseLfoGain.gain.value = 0.025; // gentle pulse depth
+            pulseLfo.connect(pulseLfoGain);
+            pulseLfoGain.connect(midtoneGain.gain);
+            pulseLfo.start();
+
+            midtone.connect(midtoneGain);
+            midtoneGain.connect(masterGain);
+            midtone.start();
+
+            oscillators.push({ osc: midtone, lfo: pulseLfo, gain: midtoneGain });
+
             // Filtered noise for texture
             const noise = audioCtx.createBufferSource();
             const noiseBuffer = audioCtx.createBuffer(1, audioCtx.sampleRate * 2, audioCtx.sampleRate);

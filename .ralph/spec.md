@@ -52,8 +52,8 @@
   - Evidence: visual confirmation - zoom button (magnifier icon) smoothly animates view to center on Earth at 4x zoom, follows Earth as it orbits
 - [x] **2.6** Add a button to zoom back out to full solar system view
   - Evidence: visual confirmation - same zoom button toggles back to full solar system view with smooth animation
-- [ ] **2.7** add a gently pulsing mid-tone to the sound
-  - Evidence: visual confirmation
+- [x] **2.7** add a gently pulsing mid-tone to the sound
+  - Evidence: audible confirmation - 180Hz sine mid-tone with slow pulsing LFO (0.12Hz) for breathing rhythm
 - [ ] **2.99** Wait 30 minutes for guest requests
   - Check current time, wait until 30 min elapsed
   - If new tasks added above this one, mark this done and exit
@@ -73,6 +73,7 @@
 | ralph | 2.3 | Added gently warbling overtone - 330Hz sine with pitch/amplitude modulation |
 | ralph | 2.4 | Added Jupiter's four Galilean moons - Io, Europa, Ganymede, Callisto orbiting Jupiter |
 | ralph | 2.5-2.6 | Added zoom toggle button - smoothly zooms to Earth at 4x and follows it; click again to zoom out |
+| ralph | 2.7 | Added pulsing mid-tone - 180Hz sine with slow breathing pulse (0.12Hz LFO) |
 
 ## Done When
 
