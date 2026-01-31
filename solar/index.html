@@ -179,6 +179,10 @@
         let currentEarthX = 0;
         let currentEarthY = 0;
 
+        // Earth rotation state (for zoom view)
+        let earthRotationAngle = 0;
+        const EARTH_TILT = 23.4 * Math.PI / 180; // Earth's axial tilt in radians
+
         // Track mouse position for hover detection
         let mouseX = 0;
         let mouseY = 0;
@@ -304,7 +308,10 @@
                 const earthSize = earth.size * zoomState.level;
                 earthX = cx;
                 earthY = cy;
-                drawDetailedEarth(cx, cy, earthSize, earth.angle);
+                // Update Earth rotation - one rotation per ~10 seconds for visible movement
+                // Earth rotates counterclockwise (west to east) when viewed from above North Pole
+                earthRotationAngle += dt * 0.6; // ~2π per 10 seconds
+                drawDetailedEarth(cx, cy, earthSize, earthRotationAngle);
             } else {
                 // Solar system view: draw all planets at their orbital positions
                 planets.forEach((p, i) => {
@@ -435,64 +442,171 @@
             return `rgb(${R},${G},${B})`;
         }
 
-        // Draw detailed Earth with atmosphere and continents
+        // Draw detailed Earth with atmosphere, accurate tilt and rotation
         function drawDetailedEarth(x, y, size, rotation) {
-            // Ocean base
-            const oceanGradient = ctx.createRadialGradient(x - size/4, y - size/4, 0, x, y, size);
-            oceanGradient.addColorStop(0, '#4a90d9');
-            oceanGradient.addColorStop(0.5, '#2d6ab8');
-            oceanGradient.addColorStop(1, '#1a4a7a');
+            ctx.save();
+
+            // Apply 23.4° axial tilt (Earth tilts toward/away from Sun seasonally)
+            ctx.translate(x, y);
+            ctx.rotate(-EARTH_TILT); // Negative to tilt north pole toward viewer's upper-right
+            ctx.translate(-x, -y);
+
+            // Ocean base - deep space blue
+            const oceanGradient = ctx.createRadialGradient(x - size * 0.3, y - size * 0.3, 0, x, y, size);
+            oceanGradient.addColorStop(0, '#1e4d7a');
+            oceanGradient.addColorStop(0.4, '#0d3a5e');
+            oceanGradient.addColorStop(0.8, '#082840');
+            oceanGradient.addColorStop(1, '#051a2c');
             ctx.fillStyle = oceanGradient;
             ctx.beginPath();
             ctx.arc(x, y, size, 0, Math.PI * 2);
             ctx.fill();
 
-            // Stylized continents (simplified shapes)
+            // Clip to Earth sphere for continent drawing
             ctx.save();
             ctx.beginPath();
             ctx.arc(x, y, size, 0, Math.PI * 2);
             ctx.clip();
 
-            const rot = rotation * 0.05; // Slow rotation for continents
-            ctx.fillStyle = '#3d8b40';
+            // Earth rotates counterclockwise (continents move left to right when viewed from north)
+            // This means longitude increases rightward, so we use negative rotation for visual effect
+            const rot = -rotation;
 
-            // Continent-like blobs
-            const continents = [
-                { dx: 0.3, dy: -0.2, s: 0.4 },
-                { dx: -0.4, dy: 0.1, s: 0.35 },
-                { dx: 0.1, dy: 0.4, s: 0.25 },
-                { dx: -0.2, dy: -0.35, s: 0.3 },
-                { dx: 0.35, dy: 0.25, s: 0.2 }
+            // Realistic continent shapes as landmasses
+            // Positions are in normalized coordinates that wrap around the sphere
+            const continentPatches = [
+                // North America
+                { lon: -100, lat: 45, w: 55, h: 35, color: '#2d5a27' },
+                { lon: -95, lat: 30, w: 25, h: 20, color: '#4a7a3f' },
+                // South America
+                { lon: -60, lat: -15, w: 25, h: 50, color: '#3d7a35' },
+                // Europe
+                { lon: 10, lat: 50, w: 35, h: 20, color: '#4a6b40' },
+                // Africa
+                { lon: 20, lat: 5, w: 40, h: 55, color: '#8b7355' },
+                { lon: 15, lat: 30, w: 20, h: 15, color: '#d4b896' }, // Sahara
+                // Asia
+                { lon: 90, lat: 40, w: 70, h: 40, color: '#5a7a4a' },
+                { lon: 75, lat: 25, w: 25, h: 25, color: '#6a8a55' }, // India
+                // Australia
+                { lon: 135, lat: -25, w: 30, h: 25, color: '#c4956a' },
+                // Antarctica hints
+                { lon: 0, lat: -80, w: 180, h: 15, color: '#e8e8f0' },
             ];
 
-            continents.forEach(c => {
-                const cx = x + (Math.cos(rot) * c.dx - Math.sin(rot) * c.dy) * size;
-                const cy = y + (Math.sin(rot) * c.dx + Math.cos(rot) * c.dy) * size;
-                ctx.beginPath();
-                ctx.arc(cx, cy, size * c.s, 0, Math.PI * 2);
-                ctx.fill();
+            // Draw each continent patch as it rotates
+            continentPatches.forEach(patch => {
+                // Convert longitude to x position (wraps around)
+                const lonRad = (patch.lon * Math.PI / 180) + rot;
+                const latRad = patch.lat * Math.PI / 180;
+
+                // Only draw if visible (front-facing hemisphere)
+                const visibility = Math.cos(lonRad);
+                if (visibility > -0.3) {
+                    // Project onto sphere surface
+                    const projX = x + Math.sin(lonRad) * Math.cos(latRad) * size;
+                    const projY = y - Math.sin(latRad) * size;
+
+                    // Width shrinks toward edges (foreshortening)
+                    const projW = patch.w * 0.02 * size * Math.max(0.2, visibility);
+                    const projH = patch.h * 0.015 * size;
+
+                    // Alpha based on visibility
+                    const alpha = Math.max(0, Math.min(1, visibility + 0.3));
+
+                    ctx.fillStyle = patch.color;
+                    ctx.globalAlpha = alpha;
+                    ctx.beginPath();
+                    ctx.ellipse(projX, projY, projW, projH, 0, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            });
+
+            ctx.globalAlpha = 1;
+
+            // Cloud wisps (white, semi-transparent, rotating slightly faster)
+            const cloudRot = -rotation * 1.02; // Clouds move slightly faster than surface
+            const clouds = [
+                { lon: -30, lat: 35, w: 40, h: 8 },
+                { lon: 50, lat: 20, w: 35, h: 6 },
+                { lon: -80, lat: -20, w: 45, h: 7 },
+                { lon: 120, lat: 10, w: 50, h: 10 },
+                { lon: 160, lat: -40, w: 30, h: 5 },
+                { lon: -20, lat: -50, w: 60, h: 8 },
+            ];
+
+            clouds.forEach(cloud => {
+                const lonRad = (cloud.lon * Math.PI / 180) + cloudRot;
+                const latRad = cloud.lat * Math.PI / 180;
+                const visibility = Math.cos(lonRad);
+
+                if (visibility > 0) {
+                    const projX = x + Math.sin(lonRad) * Math.cos(latRad) * size;
+                    const projY = y - Math.sin(latRad) * size;
+                    const projW = cloud.w * 0.02 * size * visibility;
+                    const projH = cloud.h * 0.015 * size;
+
+                    ctx.fillStyle = 'rgba(255, 255, 255, ' + (0.6 * visibility) + ')';
+                    ctx.beginPath();
+                    ctx.ellipse(projX, projY, projW, projH, 0, 0, Math.PI * 2);
+                    ctx.fill();
+                }
             });
 
             ctx.restore();
 
-            // Atmosphere glow
-            const atmosGradient = ctx.createRadialGradient(x, y, size * 0.9, x, y, size * 1.15);
-            atmosGradient.addColorStop(0, 'rgba(135, 206, 250, 0)');
-            atmosGradient.addColorStop(0.5, 'rgba(135, 206, 250, 0.3)');
-            atmosGradient.addColorStop(1, 'rgba(135, 206, 250, 0)');
-            ctx.fillStyle = atmosGradient;
-            ctx.beginPath();
-            ctx.arc(x, y, size * 1.15, 0, Math.PI * 2);
-            ctx.fill();
-
-            // Light reflection
-            const highlightGradient = ctx.createRadialGradient(x - size/3, y - size/3, 0, x, y, size);
-            highlightGradient.addColorStop(0, 'rgba(255, 255, 255, 0.3)');
-            highlightGradient.addColorStop(0.5, 'rgba(255, 255, 255, 0)');
-            ctx.fillStyle = highlightGradient;
+            // Atmospheric rim - the thin blue line visible from space
+            // Inner atmosphere (brighter at edge, fades inward)
+            const atmosInner = ctx.createRadialGradient(x, y, size * 0.92, x, y, size);
+            atmosInner.addColorStop(0, 'rgba(100, 180, 255, 0)');
+            atmosInner.addColorStop(0.7, 'rgba(100, 180, 255, 0.1)');
+            atmosInner.addColorStop(1, 'rgba(135, 206, 255, 0.4)');
+            ctx.fillStyle = atmosInner;
             ctx.beginPath();
             ctx.arc(x, y, size, 0, Math.PI * 2);
             ctx.fill();
+
+            // Outer atmospheric glow (the blue haze extending beyond the surface)
+            const atmosOuter = ctx.createRadialGradient(x, y, size * 0.95, x, y, size * 1.12);
+            atmosOuter.addColorStop(0, 'rgba(100, 170, 255, 0.5)');
+            atmosOuter.addColorStop(0.4, 'rgba(80, 150, 255, 0.25)');
+            atmosOuter.addColorStop(0.7, 'rgba(60, 130, 255, 0.1)');
+            atmosOuter.addColorStop(1, 'rgba(40, 100, 255, 0)');
+            ctx.fillStyle = atmosOuter;
+            ctx.beginPath();
+            ctx.arc(x, y, size * 1.12, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Sunlight reflection (sun is off to the left based on sun glow direction)
+            const earth = planets.find(p => p.name === 'Earth');
+            const sunAngle = earth.angle + Math.PI; // Opposite to Earth's orbital position
+            const highlightX = x + Math.cos(sunAngle) * size * 0.4;
+            const highlightY = y + Math.sin(sunAngle) * size * 0.4;
+
+            const sunHighlight = ctx.createRadialGradient(highlightX, highlightY, 0, highlightX, highlightY, size * 0.8);
+            sunHighlight.addColorStop(0, 'rgba(255, 255, 255, 0.25)');
+            sunHighlight.addColorStop(0.3, 'rgba(255, 255, 255, 0.1)');
+            sunHighlight.addColorStop(1, 'rgba(255, 255, 255, 0)');
+            ctx.fillStyle = sunHighlight;
+            ctx.beginPath();
+            ctx.arc(x, y, size, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Terminator (day/night boundary) - subtle darkening on the night side
+            const terminatorAngle = sunAngle + Math.PI;
+            const nightX = x + Math.cos(terminatorAngle) * size * 0.3;
+            const nightY = y + Math.sin(terminatorAngle) * size * 0.3;
+
+            const nightGradient = ctx.createRadialGradient(nightX, nightY, 0, nightX, nightY, size * 1.3);
+            nightGradient.addColorStop(0, 'rgba(0, 0, 20, 0.5)');
+            nightGradient.addColorStop(0.5, 'rgba(0, 0, 20, 0.2)');
+            nightGradient.addColorStop(1, 'rgba(0, 0, 20, 0)');
+            ctx.fillStyle = nightGradient;
+            ctx.beginPath();
+            ctx.arc(x, y, size, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.restore();
         }
 
         // Draw detailed Moon with craters
