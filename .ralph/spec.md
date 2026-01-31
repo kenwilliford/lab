@@ -58,8 +58,8 @@
   - Evidence: visual confirmation - click on Earth to zoom in 6x; detailed Earth with continents/atmosphere, detailed Moon with craters, moon orbit visible
 - [x] **2.9** add a button to zoom back out to full solar system view
   - Evidence: visual confirmation - zoom-out magnifier button appears when in zoomed Earth-moon view, clicking returns to full solar system
-- [ ] **2.10** the zoom in to Earth mode has strange orbital geometry! Make it more accurate to solar system dynamics.
-  - Evidence: visual confirmation
+- [x] **2.10** the zoom in to Earth mode has strange orbital geometry! Make it more accurate to solar system dynamics.
+  - Evidence: visual confirmation - Earth now stays centered when zoomed in (stable frame of reference); Moon orbits centered Earth; other planets/sun hidden (too far away); subtle sun glow shows direction of sunlight
 - [ ] **2.11** There should be a subtle interface element when hovering over Earth -- like a glow -- indicating that it will respond to click. Maybe a subtle and beautiful zoom message as well.
   - Evidence: visual confirmation
 - [ ] **2.99** Wait 30 minutes for guest requests
@@ -84,6 +84,7 @@
 | ralph | 2.7 | Added pulsing mid-tone - 180Hz sine with slow breathing pulse (0.12Hz LFO) |
 | ralph | 2.8 | Added click-to-zoom on Earth; detailed Earth (continents, atmosphere), detailed Moon (craters) when zoomed |
 | ralph | 2.9 | Added zoom-out button - magnifier icon appears when zoomed in, click to return to full solar system |
+| ralph | 2.10 | Fixed Earth-Moon orbital geometry - stable centered view, hides solar system, subtle sun direction glow |
 
 ## Done When
 

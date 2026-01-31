@@ -192,10 +192,11 @@
             // Animate zoom level
             zoomState.level += (zoomState.targetLevel - zoomState.level) * ZOOM_SPEED;
 
-            // Update zoom center to follow Earth when zoomed
+            // When zoomed to Earth, center stays fixed at screen center (stable Earth-Moon view)
+            // When zooming out, smoothly transition back to following Earth's position
             if (zoomState.active) {
-                zoomState.targetCenterX = currentEarthX;
-                zoomState.targetCenterY = currentEarthY;
+                zoomState.targetCenterX = cx;
+                zoomState.targetCenterY = cy;
             }
             zoomState.centerX += (zoomState.targetCenterX - zoomState.centerX) * ZOOM_SPEED;
             zoomState.centerY += (zoomState.targetCenterY - zoomState.centerY) * ZOOM_SPEED;
@@ -222,8 +223,31 @@
             const drawCx = cx + offsetX;
             const drawCy = cy + offsetY;
 
-            // Draw orbits (only when not too zoomed in)
-            if (zoomState.level < 3) {
+            // In Earth-Moon view (zoomed in), hide solar system elements
+            const isEarthMoonView = zoomState.level > 2;
+            const earth = planets.find(p => p.name === 'Earth');
+
+            // In Earth-Moon view, show subtle sun direction glow at screen edge
+            if (isEarthMoonView) {
+                // Sun is in opposite direction from Earth's orbital position
+                const sunAngle = earth.angle + Math.PI;
+                const glowDist = Math.max(canvas.width, canvas.height) * 0.7;
+                const sunGlowX = cx + Math.cos(sunAngle) * glowDist;
+                const sunGlowY = cy + Math.sin(sunAngle) * glowDist;
+
+                // Subtle distant sun glow
+                const distantSunGlow = ctx.createRadialGradient(sunGlowX, sunGlowY, 0, sunGlowX, sunGlowY, glowDist * 0.6);
+                distantSunGlow.addColorStop(0, 'rgba(255, 200, 100, 0.15)');
+                distantSunGlow.addColorStop(0.3, 'rgba(255, 180, 80, 0.08)');
+                distantSunGlow.addColorStop(1, 'rgba(255, 150, 50, 0)');
+                ctx.fillStyle = distantSunGlow;
+                ctx.beginPath();
+                ctx.arc(sunGlowX, sunGlowY, glowDist * 0.6, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // Draw orbits (only when not zoomed in to Earth-Moon)
+            if (!isEarthMoonView) {
                 ctx.strokeStyle = `rgba(255, 255, 255, ${0.05 / zoomState.level})`;
                 ctx.lineWidth = 1;
                 planets.forEach(p => {
@@ -231,64 +255,70 @@
                     ctx.arc(drawCx, drawCy, p.orbit * scale, 0, Math.PI * 2);
                     ctx.stroke();
                 });
+
+                // Draw sun with glow (only visible in solar system view)
+                const sunSize = 35 * zoomState.level;
+                const sunCoreSize = 18 * zoomState.level;
+                const sunGradient = ctx.createRadialGradient(drawCx, drawCy, 0, drawCx, drawCy, sunSize);
+                sunGradient.addColorStop(0, '#fff7e0');
+                sunGradient.addColorStop(0.3, '#ffcc00');
+                sunGradient.addColorStop(0.7, '#ff8c00');
+                sunGradient.addColorStop(1, 'rgba(255, 100, 0, 0)');
+                ctx.fillStyle = sunGradient;
+                ctx.beginPath();
+                ctx.arc(drawCx, drawCy, sunSize, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Sun core
+                ctx.fillStyle = '#fffbe6';
+                ctx.beginPath();
+                ctx.arc(drawCx, drawCy, sunCoreSize, 0, Math.PI * 2);
+                ctx.fill();
             }
-
-            // Draw sun with glow (scale with zoom)
-            const sunSize = 35 * zoomState.level;
-            const sunCoreSize = 18 * zoomState.level;
-            const sunGradient = ctx.createRadialGradient(drawCx, drawCy, 0, drawCx, drawCy, sunSize);
-            sunGradient.addColorStop(0, '#fff7e0');
-            sunGradient.addColorStop(0.3, '#ffcc00');
-            sunGradient.addColorStop(0.7, '#ff8c00');
-            sunGradient.addColorStop(1, 'rgba(255, 100, 0, 0)');
-            ctx.fillStyle = sunGradient;
-            ctx.beginPath();
-            ctx.arc(drawCx, drawCy, sunSize, 0, Math.PI * 2);
-            ctx.fill();
-
-            // Sun core
-            ctx.fillStyle = '#fffbe6';
-            ctx.beginPath();
-            ctx.arc(drawCx, drawCy, sunCoreSize, 0, Math.PI * 2);
-            ctx.fill();
 
             // Update and draw planets
             let earthX, earthY, jupiterX, jupiterY;
-            planets.forEach((p, i) => {
+
+            // Always update all planet angles (even when not drawing them)
+            planets.forEach(p => {
                 p.angle += p.speed * dt * 0.3;
-                const baseX = cx + Math.cos(p.angle) * p.orbit * baseScale;
-                const baseY = cy + Math.sin(p.angle) * p.orbit * baseScale;
-                const x = drawCx + Math.cos(p.angle) * p.orbit * scale;
-                const y = drawCy + Math.sin(p.angle) * p.orbit * scale;
-                const planetSize = p.size * zoomState.level;
+            });
 
-                // Store Earth's position for the moon and zoom targeting
-                if (p.name === 'Earth') {
-                    earthX = x;
-                    earthY = y;
-                    currentEarthX = baseX;
-                    currentEarthY = baseY;
-                }
-                // Store Jupiter's position for its moons
-                if (p.name === 'Jupiter') {
-                    jupiterX = x;
-                    jupiterY = y;
-                }
+            // Update Earth position for click detection
+            currentEarthX = cx + Math.cos(earth.angle) * earth.orbit * baseScale;
+            currentEarthY = cy + Math.sin(earth.angle) * earth.orbit * baseScale;
 
-                // Saturn rings
-                if (p.rings) {
-                    ctx.strokeStyle = 'rgba(210, 180, 140, 0.5)';
-                    ctx.lineWidth = 3 * zoomState.level;
-                    ctx.beginPath();
-                    ctx.ellipse(x, y, planetSize * 2.2, planetSize * 0.6, p.angle * 0.1, 0, Math.PI * 2);
-                    ctx.stroke();
-                }
+            if (isEarthMoonView) {
+                // Earth-Moon view: Earth at center, only show Earth and Moon
+                const earthSize = earth.size * zoomState.level;
+                earthX = cx;
+                earthY = cy;
+                drawDetailedEarth(cx, cy, earthSize, earth.angle);
+            } else {
+                // Solar system view: draw all planets at their orbital positions
+                planets.forEach((p, i) => {
+                    const x = drawCx + Math.cos(p.angle) * p.orbit * scale;
+                    const y = drawCy + Math.sin(p.angle) * p.orbit * scale;
+                    const planetSize = p.size * zoomState.level;
 
-                // Planet - detailed Earth when zoomed
-                if (p.name === 'Earth' && zoomState.level > 2) {
-                    // Detailed Earth with continents
-                    drawDetailedEarth(x, y, planetSize, p.angle);
-                } else {
+                    if (p.name === 'Earth') {
+                        earthX = x;
+                        earthY = y;
+                    }
+                    if (p.name === 'Jupiter') {
+                        jupiterX = x;
+                        jupiterY = y;
+                    }
+
+                    // Saturn rings
+                    if (p.rings) {
+                        ctx.strokeStyle = 'rgba(210, 180, 140, 0.5)';
+                        ctx.lineWidth = 3 * zoomState.level;
+                        ctx.beginPath();
+                        ctx.ellipse(x, y, planetSize * 2.2, planetSize * 0.6, p.angle * 0.1, 0, Math.PI * 2);
+                        ctx.stroke();
+                    }
+
                     // Standard planet rendering
                     const gradient = ctx.createRadialGradient(x - planetSize/3, y - planetSize/3, 0, x, y, planetSize);
                     gradient.addColorStop(0, lighten(p.color, 30));
@@ -297,8 +327,8 @@
                     ctx.beginPath();
                     ctx.arc(x, y, planetSize, 0, Math.PI * 2);
                     ctx.fill();
-                }
-            });
+                });
+            }
 
             // Draw Earth's moon
             moon.angle += moon.speed * dt * 0.3;
@@ -307,35 +337,34 @@
             const moonX = earthX + Math.cos(moon.angle) * moonOrbitRadius;
             const moonY = earthY + Math.sin(moon.angle) * moonOrbitRadius;
 
-            // Draw moon orbit when zoomed in
-            if (zoomState.level > 2) {
+            if (isEarthMoonView) {
+                // Earth-Moon view: show detailed moon orbit and craters
                 ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
                 ctx.lineWidth = 1;
                 ctx.beginPath();
                 ctx.arc(earthX, earthY, moonOrbitRadius, 0, Math.PI * 2);
                 ctx.stroke();
-
-                // Detailed moon with craters
                 drawDetailedMoon(moonX, moonY, moonSize);
             } else {
+                // Solar system view: simple moon
                 ctx.fillStyle = moon.color;
                 ctx.beginPath();
                 ctx.arc(moonX, moonY, moonSize, 0, Math.PI * 2);
                 ctx.fill();
-            }
 
-            // Draw Jupiter's moons
-            jupiterMoons.forEach(jm => {
-                jm.angle += jm.speed * dt * 0.3;
-                const jmOrbitRadius = jm.orbitRadius * zoomState.level;
-                const jmSize = jm.size * zoomState.level;
-                const jmX = jupiterX + Math.cos(jm.angle) * jmOrbitRadius;
-                const jmY = jupiterY + Math.sin(jm.angle) * jmOrbitRadius;
-                ctx.fillStyle = jm.color;
-                ctx.beginPath();
-                ctx.arc(jmX, jmY, jmSize, 0, Math.PI * 2);
-                ctx.fill();
-            });
+                // Draw Jupiter's moons (only in solar system view)
+                jupiterMoons.forEach(jm => {
+                    jm.angle += jm.speed * dt * 0.3;
+                    const jmOrbitRadius = jm.orbitRadius * zoomState.level;
+                    const jmSize = jm.size * zoomState.level;
+                    const jmX = jupiterX + Math.cos(jm.angle) * jmOrbitRadius;
+                    const jmY = jupiterY + Math.sin(jm.angle) * jmOrbitRadius;
+                    ctx.fillStyle = jm.color;
+                    ctx.beginPath();
+                    ctx.arc(jmX, jmY, jmSize, 0, Math.PI * 2);
+                    ctx.fill();
+                });
+            }
 
             requestAnimationFrame(animate);
         }
