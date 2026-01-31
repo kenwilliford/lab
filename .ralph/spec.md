@@ -52,6 +52,8 @@
   - Evidence: visual confirmation - zoom button (magnifier icon) smoothly animates view to center on Earth at 4x zoom, follows Earth as it orbits
 - [x] **2.6** Add a button to zoom back out to full solar system view
   - Evidence: visual confirmation - same zoom button toggles back to full solar system view with smooth animation
+- [ ] **2.7** add a gently pulsing mid-tone to the sound
+  - Evidence: visual confirmation
 - [ ] **2.99** Wait 30 minutes for guest requests
   - Check current time, wait until 30 min elapsed
   - If new tasks added above this one, mark this done and exit
