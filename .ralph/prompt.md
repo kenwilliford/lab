@@ -24,10 +24,15 @@ If ALL spec checkboxes complete:
 WORKFLOW FOR EACH STEP:
 ═══════════════════════════════════════════════════════════════════
   1. DO THE WORK: Implement the step
-  2. VERIFY: Check acceptance criteria listed in the step
-  3. MARK SPEC: Change [ ] → [x] in spec.md
-  4. LOG EVIDENCE: Add to progress log in spec.md
-  5. COMMIT AND EXIT: `git add -A && git commit`, `git push`, then EXIT.
+  2. VALIDATE: Run `.ralph/validate.sh` - if it fails, FIX before continuing
+  3. VERIFY: Check acceptance criteria listed in the step
+  4. MARK SPEC: Change [ ] → [x] in spec.md
+  5. LOG EVIDENCE: Add to progress log in spec.md
+  6. COMMIT AND EXIT: `git add -A && git commit`, `git push`, then EXIT.
+
+⚠️  VALIDATION IS MANDATORY - DO NOT SKIP STEP 2  ⚠️
+If validation fails, your code has bugs. Fix them before committing.
+Never commit code that fails validation.
 
 EVIDENCE FORMAT (for progress log):
   - File created: `ls -la path/file` output
