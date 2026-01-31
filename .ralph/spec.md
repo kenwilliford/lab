@@ -60,6 +60,8 @@
   - Evidence: visual confirmation - zoom-out magnifier button appears when in zoomed Earth-moon view, clicking returns to full solar system
 - [ ] **2.10** the zoom in to Earth mode has strange orbital geometry! Make it more accurate to solar system dynamics.
   - Evidence: visual confirmation
+- [ ] **2.11** There should be a subtle interface element when hovering over Earth -- like a glow -- indicating that it will respond to click. Maybe a subtle and beautiful zoom message as well.
+  - Evidence: visual confirmation
 - [ ] **2.99** Wait 30 minutes for guest requests
   - Check current time, wait until 30 min elapsed
   - If new tasks added above this one, mark this done and exit
